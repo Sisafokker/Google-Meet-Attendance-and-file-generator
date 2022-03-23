@@ -1,0 +1,37 @@
+{
+  "timeZone": "Europe/Paris",
+  "dependencies": {
+    "enabledAdvancedServices": [{
+      "userSymbol": "Classroom",
+      "serviceId": "classroom",
+      "version": "v1"
+    }, {
+      "userSymbol": "AdminReports",
+      "serviceId": "admin",
+      "version": "reports_v1"
+    }]
+  },
+  "exceptionLogging": "STACKDRIVER",
+  "runtimeVersion": "V8",
+  "sheets": {
+    "macros": [{
+      "menuName": "Insertar primera fila (relativa)",
+      "functionName": "myFunction"
+    }, {
+      "menuName": "Limpiar",
+      "functionName": "Limpiar"
+    }, {
+      "menuName": "Duplicar_Informe",
+      "functionName": "Duplicar_Informe"
+    }, {
+      "menuName": "Copiar_Values",
+      "functionName": "Copiar_Values"
+    }, {
+      "menuName": "Modif_InformeFinal",
+      "functionName": "Modif_InformeFinal"
+    }, {
+      "menuName": "reducir decimales",
+      "functionName": "reducirdecimales"
+    }]
+  }
+}
