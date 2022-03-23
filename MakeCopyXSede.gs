@@ -1,12 +1,13 @@
 function MANUAL_RUN (){
-  var manualSheetID = '1Yb4nBcFtbpi76WpndQmk9iS-Z_risgWi-3jjg25QCSw'
-  var manualFecha = '05/05/20'
-  MakeCopySede(manualSheetID ,manualFecha);
-  //deleteRowsExcept('Belgrano');
+var manualSheetID = '1Yb4nBcFtbpi76WpndQmk9iS-Z_risgWi-3jjg25QCSw'
+var manualFecha = '05/05/20'
+MakeCopySede(manualSheetID ,manualFecha);
+//deleteRowsExcept('Belgrano');
 }
 
 // GLOBAL
 const allSedes = ["Adrogue","B.Norte","Belgrano","Boedo","Central","Flores","Hurlingham","Lanus","Martinez","Moreno","Palomar","Quilmes","San Martin","V.Crespo","V.Urquiza","Virtual"]
+
 
 
 function MakeCopySede(thisURL, thisSheet) {
@@ -16,28 +17,35 @@ function MakeCopySede(thisURL, thisSheet) {
   var sheetID = sheet.getSheetId();
   
   var lastRow = sheet.getLastRow(); // with data
-    Logger.log("lastRow = " +lastRow)
+  Logger.log("lastRow = " +lastRow)
   var maxRow = sheet.getMaxRows() // in the sheet
-   Logger.log("maxRow = " +maxRow);
+  Logger.log("maxRow = " +maxRow);
   
   var lastColumn = sheet.getLastColumn(); // with data
   var maxColumn = sheet.getMaxColumns(); // in the sheet
+  
+  
   var rangeColC = sheet.getRange(4, 2, lastRow).getValues();
-    Logger.log("RANGE-C ="+rangeColC);
+  Logger.log("RANGE-C ="+rangeColC);
+  
   var rows = sheet.getDataRange();  // returns RANGE
-    Logger.log("ROWS ="+rows);
+  Logger.log("ROWS ="+rows);
+  
   var numRows = rows.getNumRows(); // returns 9094 (cantidad total de rows)
-    Logger.log("NumROWS ="+numRows);
+  Logger.log("NumROWS ="+numRows);
   
 //  var values = rows.getValues();
 //  Logger.log("VALUES ="+values); // toda la data
-//  sheet.deleteRows(lastRow + 1, maxRow - lastRow);
-//  var insertUnique = sheet.getRange("M4").setFormula("=UNIQUE(B4:B)");  
+  
+  
+// sheet.deleteRows(lastRow + 1, maxRow - lastRow);
+// var insertUnique = sheet.getRange("M4").setFormula("=UNIQUE(B4:B)");  
  
  for (i = 0; i < allSedes.length; i++){
    Logger.log("Filtrando Sede = "+allSedes[i]);
    filterSedes(thisURL, thisSheet, allSedes[i], sheetID); // Filtra perfecto pero aparentemente es complejo agarrar el range de la data filtrada
 //     makeArrayPorSede(thisURL, thisSheet, allSedes[i])  
+  
   }
 } catch (e){
   Logger.log("Error logged: "+e)
@@ -52,18 +60,20 @@ try{
  
  // 1. Crear filtro y aplicar criterio
   var filter = ss.getRange('A3:L').createFilter();
+  //var filter = ss.getDataRange().createFilter();
   var filterCriteria = SpreadsheetApp.newFilterCriteria();
   var defineCriteria = filterCriteria.whenTextEqualTo(sedePuntual);
   var applyfilter = filter.setColumnFilterCriteria(2, filterCriteria)
   
   // 2. Guardar info filtrada en un rango
   var returnArray = visibleData(thisURL, sheetID, sedePuntual); // returns array with visibleData to paste
-    Logger.log("returnArray.length ="+returnArray.length);
-    Logger.log("returnArray[0].length ="+returnArray[0].length);
+  Logger.log("returnArray.length ="+returnArray.length);
+  Logger.log("returnArray[0].length ="+returnArray[0].length);
   
   // 3. Crear nueva hoja
-  var destinationSS = create_New_SS(thisSheet, DriveApp.getFolderById(CopyXSedeDriveFolderID), sedePuntual); // 
-    
+  var destinationSS = create_New_SS(thisSheet, DriveApp.getFolderById(CopyXSedeDriveFolderID), sedePuntual); // driveFolderID es una variable GLOBAL declarada en otra pagina.
+  // returns  var newSpreadsheet = SpreadsheetApp.openById(id);
+  
   // 4. Pegar Rango info filtrada en nueva hoja
   var destSheet = destinationSS.getSheetByName(thisSheet);
   destSheet.getRange(1, 1, returnArray.length, returnArray[0].length).setValues(returnArray);
@@ -71,7 +81,7 @@ try{
   // 5. Modifica el formato de la nueva planilla
   modificaFormatosHoja(destSheet); // DA ERROR, hay que mejorarlo
   
-  // 6 Remover Filtro del file original para que pueda pueda reiniciarse el loop sin dar error
+  // 5 Remover Filtro del file original para que pueda pueda reiniciarse el loop sin dar error
   var removeFilter = filter.remove()
   //var removeFilter =  ss.getDataRange().createFilter().removeColumnFilterCriteria(2);
 } catch (e){
@@ -85,7 +95,8 @@ try{
 function visibleData(ssID, sheetID, sede) {
   var spreadsheetId = ssID; // Please set Spreadsheet ID.
   var sheetId = sheetID; // Please set Sheet ID.
-  var url = 
+
+  var url =
     "https://docs.google.com/spreadsheets/d/" +
     spreadsheetId +
     "/gviz/tq?tqx=out:csv&gid=" +
@@ -105,9 +116,12 @@ function create_New_SS(sheetName, folder, fileName){
     var id = ss.getId();
     var file = DriveApp.getFileById(id);
     folder.addFile(file);
+    
     var newSSxSede = SpreadsheetApp.openById(id);
     newSSxSede.setActiveSheet(newSSxSede.getSheets()[0]).setName(sheetName);
     //newSSxSede.setActiveSheet(sheet)
+    
+   
     return newSSxSede; 
 }
 
@@ -118,7 +132,9 @@ function modificaFormatosHoja(spreadsheet) {
   spreadsheet.setFrozenRows(3);
   spreadsheet.getRange('A3:L3').activate();
   spreadsheet.getActiveRangeList().setBackground('#d9d9d9');
+  
   spreadsheet.getActiveRangeList().setHorizontalAlignment('center').setVerticalAlignment('middle');
+  
   spreadsheet.getRange('G1').activate().setFormula('=COUNTIF(D4:D;"=st.*")');
   spreadsheet.getRange('G2').activate().setFormula('=COUNTIF(F1:F;"=PRESENT")');
   spreadsheet.getRange('H2').activate().setFormula('=G2/G1');
@@ -138,8 +154,16 @@ function modificaFormatosHoja(spreadsheet) {
   spreadsheet.deleteColumns(spreadsheet.getActiveRange().getColumn(), spreadsheet.getActiveRange().getNumColumns());
   spreadsheet.getRange('A1:D2').activate();
   spreadsheet.getActiveRangeList().setFontWeight('bold').setFontSize(14);
+  
   spreadsheet.getRange('F:I').activate();
   spreadsheet.getActiveRangeList().setHorizontalAlignment('center');
+  
+  
+//  spreadsheet.getRange('F3:I').activate();
+//  currentCell = spreadsheet.getCurrentCell();
+//  currentCell.activateAsCurrentCell();
+//  spreadsheet.getActiveRangeList().setHorizontalAlignment('center');
+
   spreadsheet.getRange('H1').activate();
 };
 
@@ -152,6 +176,7 @@ try{
   var sheet = ss.getSheetByName(thisSheet);
 //Source: https://stackoverflow.com/questions/58042502/how-to-copy-filtered-spreadsheet-data-with-apps-script
   var data = []
+
   for (var i = 1; i < sheet.getLastRow(); i++) {
     if(!sheet.isRowHiddenByFilter(i)) {
       var row_data = sheet.getRange(i, 1, 1, sheet.getLastColumn()).getValues()
@@ -165,17 +190,22 @@ try{
 }
 
 
+
+
 function deleteRowsExcept() {
 // function deleteRowsExcept(exception) {
   var sheet = SpreadsheetApp.getActiveSheet();
   var rows = sheet.getDataRange();
   var numRows = rows.getNumRows();
   var values = rows.getValues();
+
 //  Logger.log("The Exception is = "+exception);
+
   var rowsInColumn = 0;
   for (var i = 4; i <= numRows - 1; i++) { // i= 4 to save the top 3 rows
     var row = values[i]; // 
     // Logger.log(row); // Shows the content of each row
+    
     //if (row[1] !== exception) { // This searches all cells in columns B (change to row[3] for columns C and so on) and deletes row if cell is empty or has value 'delete'.
     if (row[1] !== 'Belgrano') { // This searches all cells in columns B (change to row[3] for columns C and so on) and deletes row if cell is empty or has value 'delete'.
       Logger.log("Should delete Row ="+i);

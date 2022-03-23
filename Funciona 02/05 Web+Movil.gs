@@ -24,6 +24,7 @@ var CopyXSedeDriveFolderID = '1oAGW3rWaQuWjK87th0oc6BHxB9wTbMiU' // Carpeta "xSe
 /////////// ACTIVAR ESTAS ACCIONES //////////////////////////
 /////////////////////////////////////////////////////////////
 
+
 function hojaMeetParcial1(){
   var sheetHoja = "MeetParcial1";
   verAsistenciaMeet(sheetHoja);
@@ -52,8 +53,8 @@ function enviarEmail (cuerpo){
 };
 
 //////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
-//////////////////////////////////////////////////////////
+/// FIN DE LOS TRIGGERS
+///////////////////////////////////////////////////////////
 
 function verAsistenciaMeet(hoja){
 try{
@@ -125,8 +126,10 @@ try{
     if(colAsistenciaCheck +w == filasLlenasLengthD ||  colAsistenciaCheck -w == filasLlenasLengthD ){
       Logger.log("MARCADOR: FIN DEL PROCESO 1. CORRE: HACER_TODO... ");
       setUpHacerTodoTrigger() // Runs the HACER_TODO function
-      }
      }
+    }
+    
+    
     } 
      else {    
        Logger.log ("MARCADOR: NO ARRANCAR PROCESO VERIFICACION 2")   
@@ -134,6 +137,7 @@ try{
        // HACER_TODO(); ACA NO VA...
     }
      Logger.log ("MARCADOR: FINAL DE LA FUNCION 3")       
+
 } catch (e){
   Logger.log("Error logged: "+e)
            }
@@ -149,6 +153,11 @@ function isTimeUp_(startTime) {
   Logger.log ("NOW Time: "+now);
   Logger.log("NOWFORMATEADO: "+ nowFormateado);
 }
+
+
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+
 
 
 
@@ -180,16 +189,19 @@ try{
       startTime: fechaRestada(searchDate),      
       filters: "identifier==" + emailAddress + ",meeting_code==" + meetCode 
     };
-
+      
+     
       const response = AdminReports.Activities.list(userKey, applicationName, optionalArgs)
-       // Logger.log("RESPONSE: "+response);  
+ // Logger.log("RESPONSE: "+response);  // -----------------------------  RETURNS LONG JSON ----------------------------------------------
+
       var myItems = response.items;
-      //  Logger.log("MyITEMS ALL = "+myItems);
-      if (myItems == null) {                           // Si no encuentra "Object property" ITEMS mark ABSENT 
+//      Logger.log("MyITEMS ALL = "+myItems);
+   
+      if (myItems == null) {                           // Si no encuentra "Object property" ITEMS mark ABSENT ---------------------
          printAbsent(ss,index+3,7)
         Logger.log("Mark as Absent - No 'Items present'")
       }
-      else {                                           // Si encuentra "Object property" ITEMS mark PRESENT  
+      else {                                           // Si encuentra "Object property" ITEMS mark PRESENT -----------------------                
         
         for (i = 0; i < myItems.length; i++){
           var insideItemsI = myItems[i]; // Returns OBJECT
@@ -197,24 +209,32 @@ try{
           
             var theEvent = insideItemsI.events; // Entra en el Object Property EVENTS
             var parametros = theEvent[0].parameters // Entra en el primer Array dentro de EVENTS y Propiedad PARAMETERS dentro de ese array.
+                      
             if(parametros);{
+                                            
                    Logger.log("Parametros = "+ parametros) // Logs every PARAMETER found with all its object properties.
+
                   var parameterValues = getParameterValues(parametros);
                   var duration = parameterValues['duration_seconds'];
                   var device = parameterValues['device_type'];
                   duration = +duration; // convierte el STRING que devuelce duration a un INTEGER (numero)
+             
                   Logger.log("DURATION_S = "+duration);
                   Logger.log("DEVICE = "+ device);
-
+                  
                   if(device === "web"){
                   durationWeb = durationWeb + duration;
+                  
                    } else {
                   durationMovil = durationMovil + duration;                
                    }
+                  
                   Logger.log("DURATION_WEB Parcial "+i +" = "+ durationWeb )
                   Logger.log("DURATION_MOVIL Parcial "+i +" = "+ durationMovil )
+               
           }           
         }
+    
     Logger.log("DURATION WEB TOTAL x USUARIO = "+durationWeb);
     Logger.log("DURATION MOVIL TOTAL x USUARIO = "+durationMovil)
     Logger.log ("Escribiendo Resultados en Sheets");
@@ -226,11 +246,14 @@ try{
     if (durationMovil > 0){ 
     printMovilDuration(durationMovil, ss,index+3,9);
       }
-   }
+    
+    }
+        
 } catch (e){
   Logger.log("Error logged: "+e)
           }
 // Fin de la funcion  
+
 } 
  
 
@@ -266,15 +289,18 @@ try{
 }
 
 
+
 function printAbsent(sheet, r, c) {
     var cell = sheet.getRange(r, c);
     cell.setValue("Absent");
 }
 
+
 function printPresent(sheet, r, c) {
     var cell = sheet.getRange(r, c);
     cell.setValue("PRESENT");
 }
+
 
 function printWebDuration(print, sheet, r, c) {
     var cell = sheet.getRange(r, c);
